@@ -11,4 +11,4 @@ branches:
   only:
     - master
 install:
-  npm run build
+  - npm run build
