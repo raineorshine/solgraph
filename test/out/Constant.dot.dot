@@ -1,8 +1,0 @@
-strict digraph {
-	graph [bb="-27,-18,27,18"];
-	node [label="\N"];
-	Foo	 [color=blue,
-		height=0.5,
-		pos="0,0",
-		width=0.75];
-}

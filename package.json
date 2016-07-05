@@ -13,10 +13,12 @@
     "node": ">=0.12.0"
   },
   "scripts": {
-    "test": "mocha --compilers js:babel-register"
+    "build": "babel -d dist src",
+    "test": "mocha --compilers js:babel-register",
+    "postinstall": "npm run build"
   },
   "bin": {
-    "solgraph": "bin.js"
+    "solgraph": "dist/solgraph.js"
   },
   "preferGlobal": true,
   "keywords": [
