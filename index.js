@@ -38,8 +38,6 @@ export default source => {
   // parse the Solidity source
   const ast = solparser.parse(source)
 
-  // console.log(JSON.stringify(ast, null, 2))
-
   // get a list of all function nodes
   const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
 
@@ -52,21 +50,24 @@ export default source => {
       send: functionCallees.some(callee => {
         return (callee.name || callee.property && callee.property.name) === 'send'
       }),
-      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant'))
+      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
+      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal'))
     }
   })
 
+  // console.log(JSON.stringify(ast, null, 2))
   // console.log(JSON.stringify(analyzedNodes, null, 2))
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant }) => {
+  analyzedNodes.forEach(({ name, callees, send, constant, internal }) => {
     const graphNode = graphNodeName(name)
 
     // node
     digraph.setNode(graphNode,
       send ? { color: COLORS.SEND } :
       constant ? { color: COLORS.CONSTANT } :
+      internal ? { color: COLORS.INTERNAL } :
       {}
     )
 
