@@ -7,13 +7,14 @@ const SEND_NODE_NAME = 'UNTRUSTED'
 const COLORS = {
   SEND: 'red',
   CONSTANT: 'blue',
-  CALL: 'orange'
+  CALL: 'orange',
+  INTERNAL: 'gray'
 }
 
 const prop = propertyName => object => object[propertyName]
 
 /** Converts an AST to array. */
-const astToArray = ast => {
+const flattten = ast => {
   const children = Array.isArray(ast.body) ? ast.body :
     ast.body ? [ast.body] :
     ast.expression ? [ast.expression] :
@@ -21,12 +22,12 @@ const astToArray = ast => {
     ast.right ? [ast.right] :
     ast.literal ? [ast.literal] :
     []
-  return [ast].concat(...children.map(astToArray))
+  return [ast].concat(...children.map(flattten))
 }
 
 /** Finds all call expression nodes in an AST. */
 const callees = ast => {
-  return astToArray(ast).filter(node => {
+  return flattten(ast).filter(node => {
     return node.type === 'CallExpression'
   })
 }
@@ -41,8 +42,10 @@ export default source => {
   // parse the Solidity source
   const ast = solparser.parse(source)
 
+  // console.log(JSON.stringify(ast, null, 2))
+
   // get a list of all function nodes
-  const functionNodes = astToArray(ast).filter(node => {
+  const functionNodes = flattten(ast).filter(node => {
     return node.type === 'FunctionDeclaration'
   })
 
@@ -55,15 +58,24 @@ export default source => {
       send: functionCallees.some(callee => {
         const calleeName = callee.property && callee.property.name || callee.name
         return calleeName === 'send'
+      }),
+      constant: node.modifiers && node.modifiers.some(modifier => {
+        return modifier.name === 'constant'
       })
     }
   })
 
+  // console.log(JSON.stringify(analyzedNodes, null, 2))
+
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send }) => {
+  analyzedNodes.forEach(({ name, callees, send, constant }) => {
     const graphNode = graphNodeName(name)
-    digraph.setNode(graphNode, { color: send ? COLORS.SEND : null })
+    digraph.setNode(graphNode,
+      send ? { color: COLORS.SEND } :
+      constant ? { color: COLORS.CONSTANT } :
+      {}
+    )
     callees.forEach(callee => {
       const calleeName = callee.property && callee.property.name || callee.name
       digraph.setEdge(name, graphNodeName(calleeName))

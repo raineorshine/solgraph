@@ -11,8 +11,13 @@ describe('solgraph', () => {
     dot.should.equal(load('Simple.dot'))
   })
 
-  it.only('should highlight sends', () => {
+  it('should highlight sends', () => {
     const dot = solgraph(load('Send.sol'))
     dot.should.equal(load('Send.dot'))
+  })
+
+  it('should highlight constant functions', () => {
+    const dot = solgraph(load('Constant.sol'))
+    dot.should.equal(load('Constant.dot'))
   })
 })
