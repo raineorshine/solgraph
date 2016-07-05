@@ -3,6 +3,7 @@ import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
 const SEND_NODE_NAME = 'UNTRUSTED'
+const SEND_NODE_STYLE = { shape: 'rectangle' }
 
 const COLORS = {
   SEND: 'red',
@@ -61,10 +62,9 @@ export default source => {
   // generate a graph
   var digraph = new Graph()
   analyzedNodes.forEach(({ name, callees, send, constant, internal }) => {
-    const graphNode = graphNodeName(name)
 
     // node
-    digraph.setNode(graphNode,
+    digraph.setNode(graphNodeName(name),
       send ? { color: COLORS.SEND } :
       constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
@@ -77,7 +77,11 @@ export default source => {
       digraph.setEdge(name, graphNodeName(calleeName))
     })
   })
-  // digraph.setEdge(1, 2, { label: "A label" })
+
+  // add send node
+  if(analyzedNodes.some(prop('send'))) {
+    digraph.setNode(SEND_NODE_NAME, SEND_NODE_STYLE)
+  }
 
   return dot.write(digraph)
 }
