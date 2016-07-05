@@ -2,8 +2,6 @@
 [![npm version](https://img.shields.io/npm/v/solgraph.svg)](https://npmjs.org/package/solgraph)
 [![Build Status](https://travis-ci.org/raineorshine/solgraph.svg?branch=master)](https://travis-ci.org/raineorshine/solgraph)
 
-Visualize Solidity control flow. Convert .sol -> .dot
-
 Generates a DOT graph that visualizes function control flow of a Solidity contract and highlights potential security vulnerabilities.
 
 ![Screenshot](https://raw.githubusercontent.com/raineorshine/solgraph/master/example.png)
