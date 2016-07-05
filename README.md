@@ -2,7 +2,7 @@
 [![npm version](https://img.shields.io/npm/v/solgraph.svg)](https://npmjs.org/package/solgraph)
 [![Build Status](https://travis-ci.org/raineorshine/solgraph.svg?branch=master)](https://travis-ci.org/raineorshine/solgraph)
 
-Generate DOT graphs of function control flow from Solidity contracts.
+Generate DOT graphs of function control flow in Solidity contracts.
 
 ## Install
 
@@ -24,10 +24,14 @@ contract MyContract {
 ```
 
 ```sh
-$ cat MyContract.sol | solgraph
+# pipe in Solidity code, pipe out DOT file
+$ cat MyContract.sol | solgraph > MyContract.dot
 Foo
 Bar
 Foo -> Bar
+
+# you have to install graphviz to render DOT file to an image
+$ dot -Tpng MyContract.dot > MyContract.png
 ```
 
 ## Node Module
