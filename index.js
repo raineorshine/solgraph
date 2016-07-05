@@ -11,23 +11,19 @@ const COLORS = {
   INTERNAL: 'gray'
 }
 
-const prop = propertyName => object => object[propertyName]
+const prop = name => object => object[name]
+const propEquals = (name, value) => object => object[name] === value
+const wrap = val => Array.isArray(val) ? val : [val]
 
 /** Converts an AST to array. */
-const flattten = ast => {
-  const children = Array.isArray(ast.body) ? ast.body :
-    ast.body ? [ast.body] :
-    ast.expression ? [ast.expression] :
-    ast.left ? [ast.left] :
-    ast.right ? [ast.right] :
-    ast.literal ? [ast.literal] :
-    []
-  return [ast].concat(...children.map(flattten))
+const flatten = ast => {
+  const children = wrap(ast.body || ast.expression || ast.left || ast.right || ast.literal || [])
+  return [ast].concat(...children.map(flatten))
 }
 
 /** Finds all call expression nodes in an AST. */
 const callees = ast => {
-  return flattten(ast).filter(node => {
+  return flatten(ast).filter(node => {
     return node.type === 'CallExpression'
   })
 }
@@ -45,9 +41,7 @@ export default source => {
   // console.log(JSON.stringify(ast, null, 2))
 
   // get a list of all function nodes
-  const functionNodes = flattten(ast).filter(node => {
-    return node.type === 'FunctionDeclaration'
-  })
+  const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
 
   // analyze the security of the functions
   const analyzedNodes = functionNodes.map(node => {
@@ -56,12 +50,9 @@ export default source => {
       name: graphNodeName(node.name),
       callees:functionCallees,
       send: functionCallees.some(callee => {
-        const calleeName = callee.property && callee.property.name || callee.name
-        return calleeName === 'send'
+        return (callee.name || callee.property && callee.property.name) === 'send'
       }),
-      constant: node.modifiers && node.modifiers.some(modifier => {
-        return modifier.name === 'constant'
-      })
+      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant'))
     }
   })
 
@@ -71,11 +62,15 @@ export default source => {
   var digraph = new Graph()
   analyzedNodes.forEach(({ name, callees, send, constant }) => {
     const graphNode = graphNodeName(name)
+
+    // node
     digraph.setNode(graphNode,
       send ? { color: COLORS.SEND } :
       constant ? { color: COLORS.CONSTANT } :
       {}
     )
+
+    // edge
     callees.forEach(callee => {
       const calleeName = callee.property && callee.property.name || callee.name
       digraph.setEdge(name, graphNodeName(calleeName))
