@@ -10,28 +10,49 @@ Generate DOT graphs of function control flow in Solidity contracts.
 $ npm install --save -g solgraph
 ```
 
-## CLI
+## Usage
 
-Given a Solidity contract:
-
-```js
-contract MyContract {
-  function Foo() {}
-  function Bar() {
-    Foo();
-  }
+```sh
+$ cat solgraph MyContract.sol > MyContract.dot
+strict digraph {
+  MyContract
+  Mint [color=gray]
+  Withdraw [color=red]
+  UNTRUSTED
+  GetBalance [color=blue]
+  MyContract -> Mint
+  Withdraw -> UNTRUSTED
 }
 ```
 
-```sh
-# pipe in Solidity code, pipe out DOT file
-$ cat MyContract.sol | solgraph > MyContract.dot
-Foo
-Bar
-Foo -> Bar
+You have to install graphviz to render the DOT file as an image:
 
-# you have to install graphviz to render DOT file to an image
+```sh
 $ dot -Tpng MyContract.dot > MyContract.png
+```
+
+The above example uses the following MyContract.sol:
+
+```js
+contract MyContract {
+  uint balance;
+
+  function MyContract() {
+    Mint(1000000);
+  }
+
+  function Mint(uint amount) internal {
+    balance = amount;
+  }
+
+  function Withdraw() {
+    msg.sender.send(balance);
+  }
+
+  function GetBalance() constant returns(uint) {
+    return balance;
+  }
+}
 ```
 
 ## Node Module
@@ -40,7 +61,7 @@ $ dot -Tpng MyContract.dot > MyContract.png
 import { readFileSync } from 'fs'
 import solgraph from 'solgraph'
 
-const dot = solgraph(fs.readFileSync('./MyContract.sol'))
+const dot = solgraph(fs.readFileSync('./Simple.sol'))
 console.log(dot)
 /*
 Foo

@@ -1,5 +1,5 @@
 import * as chai from 'chai'
-import solgraph from '../index.js'
+import solgraph from '../src/index.js'
 import { readFileSync } from 'fs'
 const should = chai.should()
 

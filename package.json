@@ -15,7 +15,8 @@
   "scripts": {
     "build": "babel -d dist src",
     "test": "mocha --compilers js:babel-register",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "watch": "nodemon -w src -w test -x \"npm run build && npm test\""
   },
   "bin": {
     "solgraph": "dist/solgraph.js"
@@ -31,7 +32,8 @@
   ],
   "devDependencies": {
     "chai": "*",
-    "mocha": "*"
+    "mocha": "*",
+    "nodemon": "^1.9.2"
   },
   "dependencies": {
     "babel-cli": "^6.10.1",
