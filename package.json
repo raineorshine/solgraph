@@ -1,6 +1,6 @@
 {
   "name": "solgraph",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Generate DOT graphs of function control flow in Solidity contracts.",
   "license": "ISC",
   "repository": "https://github.com/raineorshine/solgraph",
