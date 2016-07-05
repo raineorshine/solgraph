@@ -10,3 +10,5 @@ sudo: false
 branches:
   only:
     - master
+install:
+  npm run build
