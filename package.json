@@ -1,6 +1,6 @@
 {
   "name": "solgraph",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Visualize Solidity control flow. Convert .sol -> .dot",
   "license": "ISC",
   "repository": "https://github.com/raineorshine/solgraph",
