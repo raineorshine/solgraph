@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "babel -d dist src",
-    "test": "mocha --compilers js:babel-register",
+    "test": "mocha --compilers js:babel-core/register",
     "postinstall": "npm run build",
     "watch": "nodemon -w src -w test -x \"npm run build && npm test\""
   },
