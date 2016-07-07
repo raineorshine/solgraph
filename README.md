@@ -12,6 +12,30 @@ Generates a DOT graph that visualizes function control flow of a Solidity contra
 - Red: Send to external address
 - Blue: Constant function
 
+**Generated from contract:**
+
+```js
+contract MyContract {
+  uint balance;
+
+  function MyContract() {
+    Mint(1000000);
+  }
+
+  function Mint(uint amount) internal {
+    balance = amount;
+  }
+
+  function Withdraw() {
+    msg.sender.send(balance);
+  }
+
+  function GetBalance() constant returns(uint) {
+    return balance;
+  }
+}
+```
+
 ## Install
 
 ```sh
@@ -37,30 +61,6 @@ You have to install graphviz to render the DOT file as an image:
 
 ```sh
 $ dot -Tpng MyContract.dot > MyContract.png
-```
-
-The above example uses the following MyContract.sol:
-
-```js
-contract MyContract {
-  uint balance;
-
-  function MyContract() {
-    Mint(1000000);
-  }
-
-  function Mint(uint amount) internal {
-    balance = amount;
-  }
-
-  function Withdraw() {
-    msg.sender.send(balance);
-  }
-
-  function GetBalance() constant returns(uint) {
-    return balance;
-  }
-}
 ```
 
 ## Node Module
