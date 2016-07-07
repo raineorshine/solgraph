@@ -6,6 +6,12 @@ Generates a DOT graph that visualizes function control flow of a Solidity contra
 
 ![Screenshot](https://raw.githubusercontent.com/raineorshine/solgraph/master/example.png)
 
+**Legend:**
+- Black: Public function
+- Gray: Internal function
+- Red: Send to external address
+- Blue: Constant function
+
 ## Install
 
 ```sh
