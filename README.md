@@ -15,7 +15,7 @@ $ npm install --save -g solgraph
 ## Usage
 
 ```sh
-$ cat solgraph MyContract.sol > MyContract.dot
+$ solgraph MyContract.sol > MyContract.dot
 strict digraph {
   MyContract
   Mint [color=gray]
