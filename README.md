@@ -6,34 +6,13 @@ Generates a DOT graph that visualizes function control flow of a Solidity contra
 
 ![Screenshot](https://raw.githubusercontent.com/raineorshine/solgraph/master/example.png)
 
-## Install
+**Legend:**
+- Black: Public function
+- Gray: Internal function
+- Red: Send to external address
+- Blue: Constant function
 
-```sh
-$ npm install --save -g solgraph
-```
-
-## Usage
-
-```sh
-$ cat solgraph MyContract.sol > MyContract.dot
-strict digraph {
-  MyContract
-  Mint [color=gray]
-  Withdraw [color=red]
-  UNTRUSTED
-  GetBalance [color=blue]
-  MyContract -> Mint
-  Withdraw -> UNTRUSTED
-}
-```
-
-You have to install graphviz to render the DOT file as an image:
-
-```sh
-$ dot -Tpng MyContract.dot > MyContract.png
-```
-
-The above example uses the following MyContract.sol:
+**Generated from contract:**
 
 ```js
 contract MyContract {
@@ -55,6 +34,33 @@ contract MyContract {
     return balance;
   }
 }
+```
+
+## Install
+
+```sh
+$ npm install --save -g solgraph
+```
+
+## Usage
+
+```sh
+$ solgraph MyContract.sol > MyContract.dot
+strict digraph {
+  MyContract
+  Mint [color=gray]
+  Withdraw [color=red]
+  UNTRUSTED
+  GetBalance [color=blue]
+  MyContract -> Mint
+  Withdraw -> UNTRUSTED
+}
+```
+
+You have to install graphviz to render the DOT file as an image:
+
+```sh
+$ dot -Tpng MyContract.dot > MyContract.png
 ```
 
 ## Node Module
