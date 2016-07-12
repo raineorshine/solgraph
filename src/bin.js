@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 import com from 'commander'
 import pkg from '../package.json'
 import solgraph from './index.js'
