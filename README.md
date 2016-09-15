@@ -57,10 +57,16 @@ strict digraph {
 }
 ```
 
-You have to install graphviz to render the DOT file as an image:
+You have to have graphviz installed to render the DOT file as an image:
 
 ```sh
 $ dot -Tpng MyContract.dot > MyContract.png
+```
+
+A nice example of piping contract source that is in your clipboard through solgraph, dot, and preview: (Use whatever image previewer is available on your system; Preview.app is available on Mac)
+
+```sh
+pbpaste | solgraph | dot -Tpng | open -f -a /Applications/Preview.app
 ```
 
 ## Node Module
