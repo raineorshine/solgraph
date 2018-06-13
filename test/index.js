@@ -25,4 +25,9 @@ describe('solgraph', () => {
     const dot = solgraph(load('in/Internal.sol'))
     dot.should.equal(load('out/Internal.dot'))
   })
+
+  it('should support "emit" keyword', () => {
+    const dot = solgraph(load('in/Emit.sol'))
+    dot.should.equal(load('out/Emit.dot'))
+  })
 })

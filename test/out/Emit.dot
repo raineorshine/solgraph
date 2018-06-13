@@ -1,0 +1,5 @@
+strict digraph {
+  deposit
+  Deposit
+  deposit -> Deposit
+}
