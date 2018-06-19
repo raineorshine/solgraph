@@ -43,6 +43,6 @@
     "get-stdin-promise": "*",
     "graphlib": "^2.1.0",
     "graphlib-dot": "^0.6.2",
-    "solidity-parser": "0.3.0"
+    "solidity-parser": "0.4.0"
   }
 }
