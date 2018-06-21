@@ -22,6 +22,16 @@ describe('solgraph', () => {
     platFormAgnostic(dot).should.equal(platFormAgnostic(load('out/Constant.dot')))
   })
 
+  it('should highlight pure functions', () => {
+    const dot = solgraph(load('in/Pure.sol'))
+    platFormAgnostic(dot).should.equal(platFormAgnostic(load('out/Pure.dot')))
+  })
+
+  it('should highlight view functions', () => {
+    const dot = solgraph(load('in/View.sol'))
+    platFormAgnostic(dot).should.equal(platFormAgnostic(load('out/View.dot')))
+  })
+
   it('should highlight internal functions', () => {
     const dot = solgraph(load('in/Internal.sol'))
     platFormAgnostic(dot).should.equal(platFormAgnostic(load('out/Internal.dot')))
