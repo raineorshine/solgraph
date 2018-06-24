@@ -1,4 +1,4 @@
-import * as solparser from 'solidity-parser'
+import * as solparser from 'solidity-parser-antlr'
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
@@ -10,6 +10,7 @@ const COLORS = {
   VIEW: 'blue',
   PURE: 'green',
   CALL: 'orange',
+  CONSTANT: 'purple',
   INTERNAL: 'gray'
 }
 
@@ -19,14 +20,28 @@ const wrap = val => Array.isArray(val) ? val : [val]
 
 /** Converts an AST to array. */
 const flatten = ast => {
-  const children = wrap(ast.body || ast.expression || ast.left || ast.right || ast.literal || [])
+  const children = wrap(ast.children || ast.subNodes || ast.body || ast.statements || ast.expression || [])
   return [ast].concat(...children.map(flatten))
 }
 
 /** Finds all call expression nodes in an AST. */
 const callees = ast => {
   return flatten(ast).filter(node => {
-    return node.type === 'CallExpression'
+    return node.type === 'FunctionCall'
+  })
+}
+
+/** Finds all local values access nodes in an AST. */
+const membercalls = ast => {
+  return flatten(ast).filter(node => {
+    return node.type === 'MemberAccess'
+  })
+}
+
+/** Finds all event calls in an AST. */
+const eventcalls = ast => {
+  return flatten(ast).filter(node => {
+    return node.type === 'EmitStatement'
   })
 }
 
@@ -48,21 +63,22 @@ export default source => {
   }
 
   // get a list of all function nodes
-  const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
+  const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDefinition'))
 
   // analyze the security of the functions
   const analyzedNodes = functionNodes.map(node => {
-    const functionCallees = callees(node).map(node => node.callee)
+    const functionCallees = callees(node).filter(callees)
     return {
       name: graphNodeName(node.name),
       callees:functionCallees,
-      send: functionCallees.some(callee => {
-        const calleName = callee.name || callee.property && callee.property.name
+      send: membercalls(node).some(callee => {
+        const calleName = callee.name || callee.memberName
         return calleName === 'send' || calleName === 'transfer'
       }),
-      view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
-      pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
-      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal'))
+      view: node.stateMutability && propEquals('stateMutability', 'view')(node),
+      pure: node.stateMutability && propEquals('stateMutability', 'pure')(node),
+      constant: node.stateMutability && propEquals('stateMutability', 'constant')(node),
+      internal: node.visibility && propEquals('visibility', 'internal')(node),
     }
   })
 
@@ -71,20 +87,21 @@ export default source => {
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, view, pure, internal }) => {
+  analyzedNodes.forEach(({ name, callees, send, view, pure, constant, internal }) => {
 
     // node
     digraph.setNode(graphNodeName(name),
       send ? { color: COLORS.SEND } :
       view ? { color: COLORS.VIEW } :
       pure ? { color: COLORS.PURE } :
+      constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
       {}
     )
 
     // edge
     callees.forEach(callee => {
-      const calleeName = callee.property && callee.property.name || callee.name
+      const calleeName = (callee.expression && (callee.expression.name || callee.expression.memberName)) || callee.name || callee.memberName
       digraph.setEdge(name, graphNodeName(calleeName))
     })
   })
