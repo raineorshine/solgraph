@@ -1,4 +1,4 @@
-import * as solparser from 'solidity-parser'
+import * as solparser from 'solidity-parser-sc'
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
@@ -10,6 +10,7 @@ const COLORS = {
   VIEW: 'blue',
   PURE: 'green',
   CALL: 'orange',
+  CONSTANT: 'purple',
   INTERNAL: 'gray'
 }
 
@@ -62,6 +63,7 @@ export default source => {
       }),
       view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
       pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
+      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
       internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal'))
     }
   })
@@ -71,13 +73,14 @@ export default source => {
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, view, pure, internal }) => {
+  analyzedNodes.forEach(({ name, callees, send, view, pure, constant, internal }) => {
 
     // node
     digraph.setNode(graphNodeName(name),
       send ? { color: COLORS.SEND } :
       view ? { color: COLORS.VIEW } :
       pure ? { color: COLORS.PURE } :
+      constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
       {}
     )
