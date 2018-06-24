@@ -37,8 +37,8 @@ describe('solgraph', () => {
     platFormAgnostic(dot).should.equal(platFormAgnostic(load('out/Internal.dot')))
   })
 
-  // it('should support "emit" keyword', () => {
-  //   const dot = solgraph(load('in/Emit.sol'))
-  //   dot.should.equal(load('out/Emit.dot'))
-  // })
+  it('should support "emit" keyword', () => {
+    const dot = solgraph(load('in/Emit.sol'))
+    dot.should.equal(load('out/Emit.dot'))
+  })
 })

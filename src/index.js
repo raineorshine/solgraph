@@ -1,4 +1,4 @@
-import * as solparser from 'solidity-parser'
+import * as solparser from 'solidity-parser-sc'
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
