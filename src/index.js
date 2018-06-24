@@ -42,7 +42,6 @@ export default source => {
   let ast
   try {
     ast = solparser.parse(source)
-    console.log(ast);
   } catch (e) {
     console.error('Parse error')
     console.error(e)
