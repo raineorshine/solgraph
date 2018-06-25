@@ -39,13 +39,19 @@ contract MyContract {
 ## Install
 
 ```sh
-$ npm install --save -g solgraph
+npm install --save -g solgraph
+```
+
+Depending on your permissions, you may need to add the `unsafe-perm` flag:
+
+```sh
+sudo npm install --save -g solgraph --unsafe-perm=true --allow-root
 ```
 
 ## Usage
 
 ```sh
-$ solgraph MyContract.sol > MyContract.dot
+solgraph MyContract.sol > MyContract.dot
 strict digraph {
   MyContract
   Mint [color=gray]
@@ -60,7 +66,7 @@ strict digraph {
 You have to have graphviz installed to render the [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) file as an image:
 
 ```sh
-$ dot -Tpng MyContract.dot -o MyContract.png
+dot -Tpng MyContract.dot -o MyContract.png
 ```
 
 A nice example of piping contract source that is in your clipboard through solgraph, dot, and preview: (Use whatever image previewer is available on your system; Preview.app is available on Mac)
