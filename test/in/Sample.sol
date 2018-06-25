@@ -1,7 +1,9 @@
+pragma solidity ^0.4.23;
+
 contract MyContract {
   uint balance;
 
-  function MyContract() {
+  constructor () public {
     Mint(1000000);
   }
 
@@ -9,11 +11,11 @@ contract MyContract {
     balance = amount;
   }
 
-  function Withdraw() {
-    msg.sender.send(balance);
+  function Withdraw() public {
+    msg.sender.transfer(balance);
   }
 
-  function GetBalance() constant returns(uint) {
+  function GetBalance() public constant returns(uint) {
     return balance;
   }
 }

@@ -1,4 +1,4 @@
-import * as solparser from 'solidity-parser'
+import * as solparser from 'solidity-parser-sc'
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
@@ -9,7 +9,11 @@ const COLORS = {
   SEND: 'red',
   CONSTANT: 'blue',
   CALL: 'orange',
-  INTERNAL: 'gray'
+  INTERNAL: 'gray',
+  VIEW: 'yellow',
+  PURE: 'green',
+  TRANSFER: 'purple',
+  PAYABLE: 'lilac'
 }
 
 const prop = name => object => object[name]
@@ -58,8 +62,14 @@ export default source => {
       send: functionCallees.some(callee => {
         return (callee.name || callee.property && callee.property.name) === 'send'
       }),
+      transfer: functionCallees.some(callee => {
+        return (callee.name || callee.property && callee.property.name) === 'transfer'
+      }),
       constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
-      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal'))
+      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal')),
+      view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
+      pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
+      payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
     }
   })
 
@@ -68,13 +78,17 @@ export default source => {
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant, internal }) => {
+  analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable }) => {
 
     // node
     digraph.setNode(graphNodeName(name),
       send ? { color: COLORS.SEND } :
       constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
+      view ? { color: COLORS.VIEW } :
+      pure ? { color: COLORS.PURE } :
+      transfer ? { color: COLORS.TRANSFER } :
+      payable ? { color: COLORS.PAYABLE } :
       {}
     )
 
