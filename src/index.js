@@ -7,7 +7,8 @@ const SEND_NODE_STYLE = { shape: 'rectangle' }
 
 const COLORS = {
   SEND: 'red',
-  CONSTANT: 'blue',
+  VIEW: 'blue',
+  PURE: 'green',
   CALL: 'orange',
   INTERNAL: 'gray'
 }
@@ -31,7 +32,7 @@ const callees = ast => {
 
 /** Determines the name of the graph node to render from the AST node. */
 const graphNodeName = name => {
-  return name === 'send' ? SEND_NODE_NAME : name
+  return (name === 'send' || name === 'transfer') ? SEND_NODE_NAME : name
 }
 
 export default source => {
@@ -56,9 +57,11 @@ export default source => {
       name: graphNodeName(node.name),
       callees:functionCallees,
       send: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'send'
+        const calleName = callee.name || callee.property && callee.property.name
+        return calleName === 'send' || calleName === 'transfer'
       }),
-      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
+      view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
+      pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
       internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal'))
     }
   })
@@ -68,12 +71,13 @@ export default source => {
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant, internal }) => {
+  analyzedNodes.forEach(({ name, callees, send, view, pure, internal }) => {
 
     // node
     digraph.setNode(graphNodeName(name),
       send ? { color: COLORS.SEND } :
-      constant ? { color: COLORS.CONSTANT } :
+      view ? { color: COLORS.VIEW } :
+      pure ? { color: COLORS.PURE } :
       internal ? { color: COLORS.INTERNAL } :
       {}
     )
@@ -86,7 +90,7 @@ export default source => {
   })
 
   // add send node
-  if(analyzedNodes.some(prop('send'))) {
+  if(analyzedNodes.some(prop('send')) || analyzedNodes.some(prop('transfer'))) {
     digraph.setNode(SEND_NODE_NAME, SEND_NODE_STYLE)
   }
 
