@@ -1,6 +1,6 @@
 {
   "name": "solgraph",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "Visualize Solidity control flow for smart contract security analysis.",
   "license": "ISC",
   "repository": "https://github.com/raineorshine/solgraph",
@@ -10,11 +10,11 @@
     "url": "https://github.com/raineorshine"
   },
   "engines": {
-    "node": ">=0.12.0"
+    "node": ">=6"
   },
   "scripts": {
     "build": "babel -d dist src",
-    "test": "mocha --compilers js:@babel/register",
+    "test": "mocha --require @babel/register",
     "postinstall": "npm run build",
     "watch": "nodemon -w src -w test -x \"npm run build && npm test\""
   },
