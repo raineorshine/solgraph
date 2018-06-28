@@ -30,4 +30,25 @@ describe('solgraph', () => {
     const dot = solgraph(load('in/Emit.sol'))
     dot.should.equal(load('out/Emit.dot'))
   })
+
+  it('should highlight view functions', () => {
+    const dot = solgraph(load('in/View.sol'))
+    dot.should.equal(load('out/View.dot'))
+  })
+
+  it('should highlight pure functions', () => {
+    const dot = solgraph(load('in/Pure.sol'))
+    dot.should.equal(load('out/Pure.dot'))
+  })
+
+  it('should highlight transfers', () => {
+    const dot = solgraph(load('in/Transfer.sol'))
+    dot.should.equal(load('out/Transfer.dot'))
+  })
+
+  it('should highlight payable functions', () => {
+    const dot = solgraph(load('in/Payable.sol'))
+    dot.should.equal(load('out/Payable.dot'))
+  })
+
 })

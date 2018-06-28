@@ -1,0 +1,5 @@
+strict digraph {
+  Foo [color=purple]
+  transfer
+  Foo -> transfer
+}
