@@ -4,6 +4,7 @@ import { readFileSync } from 'fs'
 const should = chai.should()
 
 const load = filename => readFileSync(__dirname + '/' + filename, 'utf-8')
+  .replace(/\r/g, '') // strip carriage returns for Windows support
 
 describe('solgraph', () => {
   it('should generate DOT code that graphs function calls', () => {
