@@ -31,16 +31,16 @@
     "security"
   ],
   "devDependencies": {
-    "@babel/preset-es2015": "^7.0.0-beta.51",
-    "@babel/preset-stage-1": "^7.0.0-beta.51",
-    "@babel/cli": "^7.0.0-beta.51",
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/register": "^7.0.0-beta.51",
     "chai": "*",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5"
   },
   "dependencies": {
+    "@babel/preset-es2015": "^7.0.0-beta.51",
+    "@babel/preset-stage-1": "^7.0.0-beta.51",
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/register": "^7.0.0-beta.51",
     "commander": "*",
     "get-stdin-promise": "*",
     "graphlib": "^2.1.5",
