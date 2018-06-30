@@ -1,5 +1,9 @@
 strict digraph {
-  Count
-  CallCount
-  CallCount -> Count
+  Multiple1
+  Mint [color=gray]
+  Withdraw [color=red]
+  UNTRUSTED [shape=rectangle]
+  GetBalance [color=blue]
+  Multiple1 -> Mint
+  Withdraw -> UNTRUSTED
 }
