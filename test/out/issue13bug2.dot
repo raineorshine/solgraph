@@ -1,0 +1,7 @@
+strict digraph {
+  functionThree [color=purple]
+  transfer
+  anEvent
+  functionThree -> transfer
+  functionThree -> anEvent
+}

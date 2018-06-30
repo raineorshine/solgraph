@@ -10,7 +10,7 @@ const load = filename => readFileSync(__dirname + '/' + filename, 'utf-8')
 /** Test that the processed input .sol file matches the output .dot file. */
 const testInOut = name => {
   const dot = solgraph(load(`in/${name}.sol`))
-  dot.should.equal(load(`out/${name}.dot`))
+  dot[0].should.equal(load(`out/${name}.dot`))
 }
 
 /** Array of test files and descriptions. */
@@ -32,9 +32,10 @@ describe('solgraph', () => {
   tests.forEach(test => {
     it(test.description || test.name || test, () => testInOut(test.name || test))
   });
-  it.skip('should hangle multiple contracts in one file', () => {
-    const dot = solgraph(load('in/Multiple.sol'))
-    dot[0].should.equal(load('out/Multiple0.dot'))
-    dot[1].should.equal(load('out/Multiple1.dot'))
+  it('Issue bug 13 - should hangle multiple contracts in one file', () => {
+    const dot = solgraph(load('in/issue13bug.sol'))
+    dot[0].should.equal(load('out/issue13bug0.dot'))
+    dot[1].should.equal(load('out/issue13bug1.dot'))
+    dot[2].should.equal(load('out/issue13bug2.dot'))
   })
 });
