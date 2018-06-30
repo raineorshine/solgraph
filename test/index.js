@@ -31,5 +31,10 @@ const tests = [
 describe('solgraph', () => {
   tests.forEach(test => {
     it(test.description || test.name || test, () => testInOut(test.name || test))
+  });
+  it.skip('should hangle multiple contracts in one file', () => {
+    const dot = solgraph(load('in/Multiple.sol'))
+    dot[0].should.equal(load('out/Multiple0.dot'))
+    dot[1].should.equal(load('out/Multiple1.dot'))
   })
-})
+});
