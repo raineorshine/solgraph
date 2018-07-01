@@ -24,8 +24,8 @@ const tests = [
   'Pure',
   'Transfer',
   'Payable',
-  // 'Constructor',
-  // 'Fallback'
+  'Constructor',
+  'Fallback'
 ]
 
 describe('solgraph', () => {

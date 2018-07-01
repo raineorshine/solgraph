@@ -36,15 +36,15 @@
     "nodemon": "^1.17.5"
   },
   "dependencies": {
-    "@babel/preset-es2015": "^7.0.0-beta.51",
-    "@babel/preset-stage-1": "^7.0.0-beta.51",
     "@babel/cli": "^7.0.0-beta.51",
     "@babel/core": "^7.0.0-beta.51",
+    "@babel/preset-es2015": "^7.0.0-beta.51",
+    "@babel/preset-stage-1": "^7.0.0-beta.51",
     "@babel/register": "^7.0.0-beta.51",
-    "commander": "*",
+    "commander": "^2.16.0",
     "get-stdin-promise": "*",
     "graphlib": "^2.1.5",
     "graphlib-dot": "^0.6.2",
-    "solidity-parser-sc": "^0.4.10"
+    "solidity-parser-sc": "^0.4.12"
   }
 }
