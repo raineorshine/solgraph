@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "./issue14bug_parent.sol";
+import "./imports/issue14_parent.sol";
 
 contract ChildContract is ParentContract{
 
