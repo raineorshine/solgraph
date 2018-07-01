@@ -50,59 +50,66 @@ export default source => {
     process.exit(1)
   }
 
-  // get a list of all function nodes
-  const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
-
-  // analyze the security of the functions
-  const analyzedNodes = functionNodes.map(node => {
-    const functionCallees = callees(node).map(node => node.callee)
-    return {
-      name: graphNodeName(node.name),
-      callees:functionCallees,
-      send: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'send'
-      }),
-      transfer: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'transfer'
-      }),
-      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
-      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal')),
-      view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
-      pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
-      payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
+  // run for each found contract
+  const results = ast.body.map(contract => {
+    if(contract.type !== 'ContractStatement') {
+      return;
     }
-  })
+    // get a list of all function nodes
+    const functionNodes = flatten(contract).filter(propEquals('type', 'FunctionDeclaration'))
 
-  // console.log(JSON.stringify(ast, null, 2))
-  // console.log(JSON.stringify(analyzedNodes, null, 2))
-
-  // generate a graph
-  var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable }) => {
-
-    // node
-    digraph.setNode(graphNodeName(name),
-      send ? { color: COLORS.SEND } :
-      constant ? { color: COLORS.CONSTANT } :
-      internal ? { color: COLORS.INTERNAL } :
-      view ? { color: COLORS.VIEW } :
-      pure ? { color: COLORS.PURE } :
-      transfer ? { color: COLORS.TRANSFER } :
-      payable ? { color: COLORS.PAYABLE } :
-      {}
-    )
-
-    // edge
-    callees.forEach(callee => {
-      const calleeName = callee.property && callee.property.name || callee.name
-      digraph.setEdge(name, graphNodeName(calleeName))
+    // analyze the security of the functions
+    const analyzedNodes = functionNodes.map(node => {
+      const functionCallees = callees(node).map(node => node.callee)
+      return {
+        name: graphNodeName(node.name),
+        callees:functionCallees,
+        send: functionCallees.some(callee => {
+          return (callee.name || callee.property && callee.property.name) === 'send'
+        }),
+        transfer: functionCallees.some(callee => {
+          return (callee.name || callee.property && callee.property.name) === 'transfer'
+        }),
+        constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
+        internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal')),
+        view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
+        pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
+        payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
+      }
     })
-  })
 
-  // add send node
-  if(analyzedNodes.some(prop('send'))) {
-    digraph.setNode(SEND_NODE_NAME, SEND_NODE_STYLE)
-  }
+    // console.log(JSON.stringify(ast, null, 2))
+    // console.log(JSON.stringify(analyzedNodes, null, 2))
 
-  return dot.write(digraph)
+    // generate a graph
+    var digraph = new Graph()
+    analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable }) => {
+
+      // node
+      digraph.setNode(graphNodeName(name),
+        send ? { color: COLORS.SEND } :
+        constant ? { color: COLORS.CONSTANT } :
+        internal ? { color: COLORS.INTERNAL } :
+        view ? { color: COLORS.VIEW } :
+        pure ? { color: COLORS.PURE } :
+        transfer ? { color: COLORS.TRANSFER } :
+        payable ? { color: COLORS.PAYABLE } :
+        {}
+      )
+
+      // edge
+      callees.forEach(callee => {
+        const calleeName = callee.property && callee.property.name || callee.name
+        digraph.setEdge(name, graphNodeName(calleeName))
+      })
+
+      // add send node
+      if(analyzedNodes.some(prop('send'))) {
+        digraph.setNode(SEND_NODE_NAME, SEND_NODE_STYLE)
+      }
+
+    });
+    return dot.write(digraph);
+  });
+  return results.filter(function(n){ return n != undefined });
 }

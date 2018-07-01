@@ -28,5 +28,8 @@ const input = program.args[0]
   : require('get-stdin-promise')
 
 input.then(source => {
-  console.log(solgraph(source))
+  const results = solgraph(source);
+  for (let i = 0; i < results.length; i++) {
+    console.log(results[i]);
+  }
 })
