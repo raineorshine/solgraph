@@ -63,7 +63,7 @@ strict digraph {
 }
 ```
 
-You have to have graphviz installed to render the [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) file as an image:
+You have to have [graphviz](https://graphviz.gitlab.io/download/) installed (`brew install graphviz`) to render the [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) file as an image:
 
 ```sh
 dot -Tpng MyContract.dot -o MyContract.png
