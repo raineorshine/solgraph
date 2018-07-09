@@ -7,10 +7,13 @@ Generates a [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 ![Screenshot](https://raw.githubusercontent.com/raineorshine/solgraph/master/example.png)
 
 **Legend:**
-- Black: Public function
-- Gray: Internal function
 - Red: Send to external address
 - Blue: Constant function
+- Yellow: View
+- Green: Pure
+- Orange: Call
+- Purple: Transfer
+- Lilac: Payable
 
 **Generated from contract:**
 
