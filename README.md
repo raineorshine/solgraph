@@ -42,13 +42,13 @@ contract MyContract {
 ## Install
 
 ```sh
-npm install --save -g solgraph
+npm install -g solgraph
 ```
 
 Depending on your permissions, you may need to add the `unsafe-perm` flag:
 
 ```sh
-sudo npm install --save -g solgraph --unsafe-perm=true --allow-root
+sudo npm install -g solgraph --unsafe-perm=true --allow-root
 ```
 
 ## Usage
