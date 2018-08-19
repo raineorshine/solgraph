@@ -29,7 +29,9 @@ const flatten = ast => {
 /** Finds all call expression nodes in an AST. */
 const callees = ast => {
   return flatten(ast).filter(node => {
-    return node.type === 'CallExpression'
+    return node.type === 'CallExpression' &&
+      node.callee.name !== 'require' &&
+      node.callee.name !== 'assert'
   })
 }
 
