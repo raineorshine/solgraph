@@ -1,5 +1,5 @@
 strict digraph {
-  deposit [color=lilac]
+  deposit [color=brown]
   Deposit
   deposit -> Deposit
 }

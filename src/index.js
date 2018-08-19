@@ -13,7 +13,7 @@ const COLORS = {
   VIEW: 'yellow',
   PURE: 'green',
   TRANSFER: 'purple',
-  PAYABLE: 'lilac'
+  PAYABLE: 'brown'
 }
 
 const prop = name => object => object[name]

@@ -1,0 +1,126 @@
+ProBook:solgraph EthDev$ npm test
+
+> solgraph@0.3.2 test /Users/Shared/solgraph
+> mocha --require @babel/register
+
+
+
+  solgraph
+    ✓ Constant.sol
+    ✓ Constructor.sol
+    ✓ Emit.sol
+    ✓ Fallback.sol
+    ✓ Internal.sol
+    ✓ Payable.sol
+    ✓ Pure.sol
+    ✓ Require.sol
+    ✓ Send.sol
+    ✓ Simple.sol
+    ✓ Transfer.sol
+    ✓ View.sol
+    ✓ issue13.sol
+    ✓ issue14.sol
+
+
+  14 passing (137ms)
+
+  ProBook:solgraph EthDev$ npm run-script build
+
+  > solgraph@0.3.2 build /Users/Shared/solgraph
+  > babel -d dist src
+
+  🎉  Successfully compiled 2 files with Babel.
+
+  ProBook:solgraph EthDev$ npm pack
+npm notice
+npm notice 📦  solgraph@0.3.2
+npm notice === Tarball Contents ===
+npm notice 1.2kB  package.json
+npm notice 39B    .babelrc
+npm notice 214B   .editorconfig
+npm notice 167B   .travis.yml
+npm notice 16.6kB example.png
+npm notice 807B   LICENSE
+npm notice 2.2kB  README.md
+npm notice 46B    solgraph.js
+npm notice 966B   dist/bin.js
+npm notice 5.2kB  dist/index.js
+npm notice 684B   src/bin.js
+npm notice 3.4kB  src/index.js
+npm notice 117B   test/in/Constant.sol
+npm notice 79B    test/in/Constructor.sol
+npm notice 267B   test/in/Emit.sol
+npm notice 77B    test/in/Fallback.sol
+npm notice 88B    test/in/imports/issue14_parent.sol
+npm notice 101B   test/in/Internal.sol
+npm notice 541B   test/in/issue13.sol
+npm notice 189B   test/in/issue14.sol
+npm notice 154B   test/in/Payable.sol
+npm notice 113B   test/in/Pure.sol
+npm notice 117B   test/in/Require.sol
+npm notice 104B   test/in/Send.sol
+npm notice 168B   test/in/Simple.sol
+npm notice 152B   test/in/Transfer.sol
+npm notice 135B   test/in/View.sol
+npm notice 906B   test/index.js
+npm notice 38B    test/out/Constant.dot
+npm notice 33B    test/out/Constructor.dot
+npm notice 74B    test/out/Emit.dot
+npm notice 30B    test/out/Fallback.dot
+npm notice 38B    test/out/Internal.dot
+npm notice 182B   test/out/issue13.dot
+npm notice 70B    test/out/issue14.dot
+npm notice 39B    test/out/Payable.dot
+npm notice 39B    test/out/Pure.dot
+npm notice 25B    test/out/Require.dot
+npm notice 86B    test/out/Send.dot
+npm notice 60B    test/out/Simple.dot
+npm notice 69B    test/out/Transfer.dot
+npm notice 40B    test/out/View.dot
+npm notice === Tarball Details ===
+npm notice name:          solgraph
+npm notice version:       0.3.2
+npm notice filename:      solgraph-0.3.2.tgz
+npm notice package size:  23.4 kB
+npm notice unpacked size: 35.6 kB
+npm notice shasum:        77fd806a245ae48b316b31c7f8993a2dc6a3c931
+npm notice integrity:     sha512-We6xaPktCC6bb[...]AbnZEsb+rLNuw==
+npm notice total files:   42
+npm notice
+solgraph-0.3.2.tgz
+
+ProBook:solgraph EthDev$ npm install ./solgraph-0.3.2.tgz
+npm ERR! code ENOSELF
+npm ERR! Refusing to install package with name "solgraph" under a package
+npm ERR! also called "solgraph". Did you name your project the same
+npm ERR! as the dependency you're installing?
+npm ERR!
+npm ERR! For more information, see:
+npm ERR!     <https://docs.npmjs.com/cli/install#limitations-of-npms-install-algorithm>
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /Users/EthDev/.npm/_logs/2018-08-19T18_17_18_649Z-debug.log
+ProBook:solgraph EthDev$ npm uninstall -g solgraph !!!AHA
+removed 406 packages in 21.784s
+
+ProBook:solgraph EthDev$ npm i ./solgraph-0.3.2.tgz
+
+ProBook:solgraph EthDev$ npm i -g ./solgraph-0.3.2.tgz
+/Users/EthDev/.npm-global/bin/solgraph -> /Users/EthDev/.npm-global/lib/node_modules/solgraph/solgraph.js
+
+> fsevents@1.2.4 install /Users/EthDev/.npm-global/lib/node_modules/solgraph/node_modules/fsevents
+> node install
+
+[fsevents] Success: "/Users/EthDev/.npm-global/lib/node_modules/solgraph/node_modules/fsevents/lib/binding/Release/node-v64-darwin-x64/fse.node" already installed
+Pass --update-binary to reinstall or --build-from-source to recompile
+
+> solgraph@0.3.2 postinstall /Users/EthDev/.npm-global/lib/node_modules/solgraph
+> npm run build
+
+
+> solgraph@0.3.2 build /Users/EthDev/.npm-global/lib/node_modules/solgraph
+> babel -d dist src
+
+Successfully compiled 2 files with Babel.
++ solgraph@0.3.2
+added 406 packages from 450 contributors in 11.085s
