@@ -47,7 +47,7 @@ export default source => {
   try {
     ast = solparser.parse(source)
   } catch (e) {
-    console.error('Parse error')
+    console.error('Parse error. Please report to https://github.com/sc-forks/solidity-parser.')
     console.error(e)
     process.exit(1)
   }
