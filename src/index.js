@@ -1,4 +1,6 @@
-import * as solparser from 'solidity-parser-sc'
+//import * as solparser from 'solidity-parser-sc'
+const solparser = require('@solidity-parser/parser');
+//import solparser from '@solidity-parser/parser'
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
@@ -17,7 +19,9 @@ const COLORS = {
 }
 
 const prop = name => object => object[name]
-const propEquals = (name, value) => object => object[name] === value
+const propEquals = (name, values) => object => Array.isArray(values) ?
+    values.includes(object[name]) :
+    object[name] === values 
 const wrap = val => Array.isArray(val) ? val : [val]
 
 /** Converts an AST to array. */
@@ -27,17 +31,34 @@ const flatten = ast => {
 }
 
 /** Finds all call expression nodes in an AST. */
-const callees = ast => {
-  return flatten(ast).filter(node => {
-    return node.type === 'CallExpression' &&
-      node.callee.name !== 'require' &&
-      node.callee.name !== 'assert'
-  })
+//const callees = ast => {
+//  return flatten(ast).filter(node => {
+//    return node.type === 'CallExpression' &&
+//      node.callee.name !== 'require' &&
+//      node.callee.name !== 'assert'
+//  })
+//}
+//const callees = nodes => {
+//
+//  return []
+//}
+
+const callees = node => {
+  if (!(node.body && node.body.statements)) return []
+  const {statements} = node.body
+  return statements.filter(statement => 
+      statement.type === 'EmitStatement' ||
+      (statement.type === 'ExpressionStatement' && statement.type === 'FunctionCall')
+  )
 }
 
 /** Determines the name of the graph node to render from the AST node. */
 const graphNodeName = name => {
   return name === 'send' ? SEND_NODE_NAME : name
+}
+const handleConstructor = node => {
+  if (!node.isConstructor) return node
+  node.name = 'constructor'
 }
 
 export default source => {
@@ -45,7 +66,16 @@ export default source => {
   // parse the Solidity source
   let ast
   try {
+    console.log(source)
+//    const input = `
+//    contract test {
+//        uint256 a;
+//        function f() {}
+//    }
+//`
     ast = solparser.parse(source)
+    //ast = solparser.parse(input)
+
   } catch (e) {
     console.error('Parse error. Please report to https://github.com/sc-forks/solidity-parser.')
     console.error(e)
@@ -53,11 +83,46 @@ export default source => {
   }
 
   // get a list of all function nodes
-  const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
+  //const functionAndEventNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
+  // TODO: make it work if more contracts defined
+  const functionAndEventNodes = ast.children[1].subNodes
+    .filter(propEquals('type', ['FunctionDefinition', 'EventDefinition']))
+  console.log("^^^^^^^^^^^^^^^^^^^")
+  console.log(functionAndEventNodes)
+
 
   // analyze the security of the functions
-  const analyzedNodes = functionNodes.map(node => {
-    const functionCallees = callees(node).map(node => node.callee)
+  const analyzedNodes = functionAndEventNodes.map(node => {
+    //const functionCallees = callees(node).map(node => node.callee)
+    const functionCallees = callees(node)
+      .map(statement => {
+        if (statement.type === "EmitStatement" ) {
+          return statement.eventCall.expression.name  
+        }
+      })
+
+    //CONSTRUCTOR
+    if (node.isConstructor) {
+      handleConstructor(node)
+    
+    }
+    console.log('&&*&***&*&***&&&**&&&&& name')
+
+    console.log(node.name)
+    console.log('&&*&***&*&***&&&**&&&&& calless')
+    console.log(functionCallees)
+    console.log('&&*&***&*&***&&&**&&&&& body.statements')
+    if (node.body) console.log(JSON.stringify(node.body.statements, null, 4))
+
+    //console.log('&&*&***&*&***&&&**&&&&& body.statements event names')
+    //node.body.statements.forEach( statement => {
+    //  if (statement.type === 'EmitStatement')
+    //    console.log(statement.eventCall.expression.name)
+    //})
+//
+    //console.log('&&*&***&*&***&&&**&&&&&')
+    //console.log(node)
+
     return {
       name: graphNodeName(node.name),
       callees:functionCallees,
@@ -67,11 +132,14 @@ export default source => {
       transfer: functionCallees.some(callee => {
         return (callee.name || callee.property && callee.property.name) === 'transfer'
       }),
-      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
+      //constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
+      constant: node.stateMutability && node.stateMutability === 'constant',
       internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal')),
       view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
       pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
-      payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
+      //payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
+      payable: node.stateMutability && node.stateMutability === 'payable',
+      event: node.type && node.type === 'EventDefinition'
     }
   })
 
@@ -80,10 +148,11 @@ export default source => {
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable }) => {
+  analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable, event }) => {
 
     // node
     digraph.setNode(graphNodeName(name),
+      event ? { shape: 'polygon'} :
       send ? { color: COLORS.SEND } :
       constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
@@ -96,8 +165,9 @@ export default source => {
 
     // edge
     callees.forEach(callee => {
-      const calleeName = callee.property && callee.property.name || callee.name
-      digraph.setEdge(name, graphNodeName(calleeName))
+      //const calleeName = callee.property && callee.property.name || callee.name
+      //digraph.setEdge(name, graphNodeName(calleeName))
+      digraph.setEdge(name, graphNodeName(callee))
     })
   })
 

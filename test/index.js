@@ -11,6 +11,10 @@ const load = filename => readFileSync(__dirname + '/' + filename, 'utf-8')
 const testInOut = file => {
   const name = file.slice(0, file.lastIndexOf('.'))
   const dot = solgraph(load(`in/${name}.sol`))
+  console.log('--------------------')
+  console.log(dot)
+  console.log('--------------------')
+
   dot.should.equal(load(`out/${name}.dot`))
 }
 
@@ -19,9 +23,13 @@ describe('solgraph', () => {
   // test each .sol file in the ./test/in directory
   // against the corresponding .dot file in the ./test/out directory
   const files = readdirSync(__dirname + '/in')
-  files.forEach(file => {
-    if (file.indexOf('.sol') !== -1) {
-      it(file, () => testInOut(file))
-    }
-  })
+  //it('Constant.sol', () =>testInOut('Constant.sol'))
+  //it('Constructor.sol', () =>testInOut('Constructor.sol'))
+  it('Emit.sol', () =>testInOut('Emit.sol'))
+  //it('Simple.sol', () =>testInOut('Simple.sol'))
+  //files.forEach(file => {
+  //  if (file.indexOf('.sol') !== -1) {
+  //    it(file, () => testInOut(file))
+  //  }
+  //})
 })
