@@ -56,9 +56,12 @@ const callees = node => {
 const graphNodeName = name => {
   return name === 'send' ? SEND_NODE_NAME : name
 }
-const handleConstructor = node => {
-  if (!node.isConstructor) return node
-  node.name = 'constructor'
+const handleSpecials = node => {
+  if (node.isConstructor) {
+    node.name = 'constructor'
+  } else if( node.isFallback) {
+    node.name = 'fallback'
+  }
 }
 
 export default source => {
@@ -114,8 +117,8 @@ export default source => {
 
 
     //CONSTRUCTOR
-    if (node.isConstructor) {
-      handleConstructor(node)
+    if (!node.name) {
+      handleSpecials(node)
     
     }
     console.log('&&*&***&*&***&&&**&&&&& name')
@@ -146,7 +149,7 @@ export default source => {
       }),
       //constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
       constant: node.stateMutability && node.stateMutability === 'constant',
-      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal')),
+      internal: node.visibility && node.visibility === 'internal',
       view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
       pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
       //payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
