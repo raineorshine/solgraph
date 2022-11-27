@@ -48,7 +48,8 @@ const callees = node => {
   const {statements} = node.body
   return statements.filter(statement => 
       statement.type === 'EmitStatement' ||
-      (statement.type === 'ExpressionStatement' && statement.expression.type === 'FunctionCall')
+      (statement.type === 'ExpressionStatement' && statement.expression.type === 'FunctionCall') &&
+      !['require', 'assert'].includes(statement.expression.expression.name)
   )
 }
 
@@ -150,8 +151,8 @@ export default source => {
       //constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
       constant: node.stateMutability && node.stateMutability === 'constant',
       internal: node.visibility && node.visibility === 'internal',
-      view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
-      pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
+      view: node.stateMutability && node.stateMutability === 'view',
+      pure: node.stateMutability && node.stateMutability === 'pure',
       //payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
       payable: node.stateMutability && node.stateMutability === 'payable',
       event: node.type && node.type === 'EventDefinition'

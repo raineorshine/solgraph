@@ -29,7 +29,11 @@ describe('solgraph', () => {
   //it('Simple.sol', () =>testInOut('Simple.sol'))
   //it('Fallback.sol', () =>testInOut('Fallback.sol'))
   //it('Internal.sol', () =>testInOut('Internal.sol'))
-  it('Payable.sol', () =>testInOut('Payable.sol'))
+  //it('Payable.sol', () =>testInOut('Payable.sol'))
+  //it('Pure.sol', () =>testInOut('Pure.sol'))
+  //it('View.sol', () =>testInOut('View.sol'))
+  it('Require.sol', () =>testInOut('Require.sol'))
+
 
 
   //files.forEach(file => {
