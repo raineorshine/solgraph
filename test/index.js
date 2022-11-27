@@ -25,8 +25,8 @@ describe('solgraph', () => {
   const files = readdirSync(__dirname + '/in')
   //it('Constant.sol', () =>testInOut('Constant.sol'))
   //it('Constructor.sol', () =>testInOut('Constructor.sol'))
-  it('Emit.sol', () =>testInOut('Emit.sol'))
-  //it('Simple.sol', () =>testInOut('Simple.sol'))
+  //it('Emit.sol', () =>testInOut('Emit.sol'))
+  it('Simple.sol', () =>testInOut('Simple.sol'))
   //files.forEach(file => {
   //  if (file.indexOf('.sol') !== -1) {
   //    it(file, () => testInOut(file))

@@ -48,7 +48,7 @@ const callees = node => {
   const {statements} = node.body
   return statements.filter(statement => 
       statement.type === 'EmitStatement' ||
-      (statement.type === 'ExpressionStatement' && statement.type === 'FunctionCall')
+      (statement.type === 'ExpressionStatement' && statement.expression.type === 'FunctionCall')
   )
 }
 
@@ -96,10 +96,22 @@ export default source => {
     //const functionCallees = callees(node).map(node => node.callee)
     const functionCallees = callees(node)
       .map(statement => {
-        if (statement.type === "EmitStatement" ) {
-          return statement.eventCall.expression.name  
+        switch(statement.type ) {
+          case "EmitStatement": 
+            return statement.eventCall.expression.name  
+          case "ExpressionStatement":
+            return statement.expression.expression.name
         }
       })
+
+      //"type": "ExpressionStatement",
+      //  "expression": {
+      //      "type": "FunctionCall",
+      //      "expression": {
+      //          "type": "Identifier",
+      //          "name": "Count"
+      //      },
+
 
     //CONSTRUCTOR
     if (node.isConstructor) {
