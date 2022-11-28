@@ -35,7 +35,7 @@ const flatten = ast => {
 //  return flatten(ast).filter(node => {
 //    return node.type === 'CallExpression' &&
 //      node.callee.name !== 'require' &&
-//      node.callee.name !== 'assert'
+//      node.callee.name !== 'assert'r45t
 //  })
 //}
 //const callees = nodes => {
@@ -49,7 +49,7 @@ const callees = node => {
   return statements.filter(statement => 
       statement.type === 'EmitStatement' ||
       (statement.type === 'ExpressionStatement' && statement.expression.type === 'FunctionCall') &&
-      !['require', 'assert'].includes(statement.expression.expression.name)
+      !['require', 'assert'].includes(statement.expression.expression.name) 
   )
 }
 
@@ -103,19 +103,17 @@ export default source => {
         switch(statement.type ) {
           case "EmitStatement": 
             return statement.eventCall.expression.name  
-          case "ExpressionStatement":
-            return statement.expression.expression.name
+          case "ExpressionStatement": 
+            const expression = statement.expression.expression
+            if (expression.name) return statement.expression.expression.name
+            if (expression.type === 'MemberAccess') 
+              return expression.memberName
+              //TODO: if expression.expression.type === 'MemberAccess'
+              //            expression.expression.memberName
+              //      if expression.expression.type === 'Identifier'
+              //            expression.expression.name
         }
       })
-
-      //"type": "ExpressionStatement",
-      //  "expression": {
-      //      "type": "FunctionCall",
-      //      "expression": {
-      //          "type": "Identifier",
-      //          "name": "Count"
-      //      },
-
 
     //CONSTRUCTOR
     if (!node.name) {
@@ -142,12 +140,8 @@ export default source => {
     return {
       name: graphNodeName(node.name),
       callees:functionCallees,
-      send: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'send'
-      }),
-      transfer: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'transfer'
-      }),
+      send: functionCallees.some(callee => callee === 'send'),
+      transfer: functionCallees.some(callee => callee === 'transfer'),
       //constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
       constant: node.stateMutability && node.stateMutability === 'constant',
       internal: node.visibility && node.visibility === 'internal',

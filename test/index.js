@@ -23,16 +23,19 @@ describe('solgraph', () => {
   // test each .sol file in the ./test/in directory
   // against the corresponding .dot file in the ./test/out directory
   const files = readdirSync(__dirname + '/in')
-  //it('Constant.sol', () =>testInOut('Constant.sol'))
-  //it('Constructor.sol', () =>testInOut('Constructor.sol'))
-  //it('Emit.sol', () =>testInOut('Emit.sol'))
-  //it('Simple.sol', () =>testInOut('Simple.sol'))
-  //it('Fallback.sol', () =>testInOut('Fallback.sol'))
-  //it('Internal.sol', () =>testInOut('Internal.sol'))
-  //it('Payable.sol', () =>testInOut('Payable.sol'))
-  //it('Pure.sol', () =>testInOut('Pure.sol'))
-  //it('View.sol', () =>testInOut('View.sol'))
+  it('Constant.sol', () =>testInOut('Constant.sol'))
+  it('Constructor.sol', () =>testInOut('Constructor.sol'))
+  it('Emit.sol', () =>testInOut('Emit.sol'))
+  it('Simple.sol', () =>testInOut('Simple.sol'))
+  it('Fallback.sol', () =>testInOut('Fallback.sol'))
+  it('Internal.sol', () =>testInOut('Internal.sol'))
+  it('Payable.sol', () =>testInOut('Payable.sol'))
+  it('Pure.sol', () =>testInOut('Pure.sol'))
+  it('View.sol', () =>testInOut('View.sol'))
   it('Require.sol', () =>testInOut('Require.sol'))
+  it('Transfer.sol', () =>testInOut('Transfer.sol'))
+  it('Send.sol', () =>testInOut('Send.sol'))
+
 
 
 
