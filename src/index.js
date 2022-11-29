@@ -1,6 +1,4 @@
-//import * as solparser from 'solidity-parser-sc'
 const solparser = require('@solidity-parser/parser');
-//import solparser from '@solidity-parser/parser'
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
@@ -31,18 +29,6 @@ const flatten = ast => {
 }
 
 /** Finds all call expression nodes in an AST. */
-//const callees = ast => {
-//  return flatten(ast).filter(node => {
-//    return node.type === 'CallExpression' &&
-//      node.callee.name !== 'require' &&
-//      node.callee.name !== 'assert'r45t
-//  })
-//}
-//const callees = nodes => {
-//
-//  return []
-//}
-
 const callees = node => {
   if (!(node.body && node.body.statements)) return []
   const {statements} = node.body
@@ -70,16 +56,7 @@ export default source => {
   // parse the Solidity source
   let ast
   try {
-    console.log(source)
-//    const input = `
-//    contract test {
-//        uint256 a;
-//        function f() {}
-//    }
-//`
     ast = solparser.parse(source)
-    //ast = solparser.parse(input)
-
   } catch (e) {
     console.error('Parse error. Please report to https://github.com/sc-forks/solidity-parser.')
     console.error(e)
@@ -87,21 +64,12 @@ export default source => {
   }
 
   // get a list of all function nodes
-  //const functionAndEventNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
-  // TODO: make it work if more contracts defined
-  console.log("^^^^^^^^^^^^^^^^^^^ ast")
-  console.log(ast)
   const contracts = ast.children.filter(child => child.type === 'ContractDefinition')
-  //const functionAndEventNodes = ast.children[1].subNodes
 const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
     .filter(propEquals('type', ['FunctionDefinition', 'EventDefinition']))
-  console.log("^^^^^^^^^^^^^^^^^^^")
-  //console.log(functionAndEventNodes)
-
 
   // analyze the security of the functions
   const analyzedNodes = functionAndEventNodes.map(node => {
-    //const functionCallees = callees(node).map(node => node.callee)
     const functionCallees = callees(node)
       .map(statement => {
         switch(statement.type ) {
@@ -124,41 +92,20 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
       handleSpecials(node)
     
     }
-    console.log('&&*&***&*&***&&&**&&&&& name')
-
-    console.log(node.name)
-    console.log('&&*&***&*&***&&&**&&&&& calless')
-    console.log(functionCallees)
-    console.log('&&*&***&*&***&&&**&&&&& body.statements')
-    if (node.body) console.log(JSON.stringify(node.body.statements, null, 4))
-
-    //console.log('&&*&***&*&***&&&**&&&&& body.statements event names')
-    //node.body.statements.forEach( statement => {
-    //  if (statement.type === 'EmitStatement')
-    //    console.log(statement.eventCall.expression.name)
-    //})
-//
-    //console.log('&&*&***&*&***&&&**&&&&&')
-    //console.log(node)
 
     return {
       name: graphNodeName(node.name),
       callees:functionCallees,
       send: functionCallees.some(callee => callee === 'send'),
       transfer: functionCallees.some(callee => callee === 'transfer'),
-      //constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
       constant: node.stateMutability && node.stateMutability === 'constant',
       internal: node.visibility && node.visibility === 'internal',
       view: node.stateMutability && node.stateMutability === 'view',
       pure: node.stateMutability && node.stateMutability === 'pure',
-      //payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
       payable: node.stateMutability && node.stateMutability === 'payable',
       event: node.type && node.type === 'EventDefinition'
     }
   })
-
-  // console.log(JSON.stringify(ast, null, 2))
-  // console.log(JSON.stringify(analyzedNodes, null, 2))
 
   // generate a graph
   var digraph = new Graph()
@@ -179,8 +126,6 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
 
     // edge
     callees.forEach(callee => {
-      //const calleeName = callee.property && callee.property.name || callee.name
-      //digraph.setEdge(name, graphNodeName(calleeName))
       digraph.setEdge(name, graphNodeName(callee))
     })
   })
