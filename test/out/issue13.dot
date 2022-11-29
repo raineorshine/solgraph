@@ -1,9 +1,9 @@
 strict digraph {
   functionOne [color=green]
   functionTwo [color=brown]
+  anEvent [shape=polygon]
   functionThree [color=purple]
   transfer
-  anEvent
   functionThree -> transfer
   functionThree -> anEvent
 }

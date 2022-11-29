@@ -89,10 +89,14 @@ export default source => {
   // get a list of all function nodes
   //const functionAndEventNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
   // TODO: make it work if more contracts defined
-  const functionAndEventNodes = ast.children[1].subNodes
+  console.log("^^^^^^^^^^^^^^^^^^^ ast")
+  console.log(ast)
+  const contracts = ast.children.filter(child => child.type === 'ContractDefinition')
+  //const functionAndEventNodes = ast.children[1].subNodes
+const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
     .filter(propEquals('type', ['FunctionDefinition', 'EventDefinition']))
   console.log("^^^^^^^^^^^^^^^^^^^")
-  console.log(functionAndEventNodes)
+  //console.log(functionAndEventNodes)
 
 
   // analyze the security of the functions
