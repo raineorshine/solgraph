@@ -2,18 +2,23 @@ const solparser = require('@solidity-parser/parser');
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
-const SEND_NODE_NAME = 'UNTRUSTED'
-const SEND_NODE_STYLE = { shape: 'rectangle' }
+const DEPRECATED = ['send', 'transfer']
+
+const DEPRECATED_NODE_NAMES = {
+  send: 'DEPRECATED(send)',
+  transfer: 'DEPRECATED(transfer)',
+}
+const DEPRECATED_NODE_STYLE = { shape: 'rectangle' }
+const EVENT_NODE_STYLE = { shape: 'hexagon' }
 
 const COLORS = {
-  SEND: 'red',
   CONSTANT: 'blue',
   CALL: 'orange',
   INTERNAL: 'gray',
   VIEW: 'yellow',
   PURE: 'green',
-  TRANSFER: 'purple',
-  PAYABLE: 'brown'
+  PAYABLE: 'brown',
+  DEPRECATED: 'red'
 }
 
 const prop = name => object => object[name]
@@ -41,7 +46,7 @@ const callees = node => {
 
 /** Determines the name of the graph node to render from the AST node. */
 const graphNodeName = name => {
-  return name === 'send' ? SEND_NODE_NAME : name
+  return DEPRECATED.includes(name) ? DEPRECATED_NODE_NAMES[name] : name
 }
 const handleSpecials = node => {
   if (node.isConstructor) {
@@ -80,24 +85,19 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
             if (expression.name) return statement.expression.expression.name
             if (expression.type === 'MemberAccess') 
               return expression.memberName
-              //TODO: if expression.expression.type === 'MemberAccess'
-              //            expression.expression.memberName
-              //      if expression.expression.type === 'Identifier'
-              //            expression.expression.name
         }
       })
 
     //CONSTRUCTOR
     if (!node.name) {
       handleSpecials(node)
-    
     }
 
     return {
       name: graphNodeName(node.name),
       callees:functionCallees,
-      send: functionCallees.some(callee => callee === 'send'),
-      transfer: functionCallees.some(callee => callee === 'transfer'),
+      send: functionCallees.includes('send'),
+      transfer: functionCallees.includes('transfer'),
       constant: node.stateMutability && node.stateMutability === 'constant',
       internal: node.visibility && node.visibility === 'internal',
       view: node.stateMutability && node.stateMutability === 'view',
@@ -113,13 +113,13 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
 
     // node
     digraph.setNode(graphNodeName(name),
-      event ? { shape: 'polygon'} :
-      send ? { color: COLORS.SEND } :
+      event ? EVENT_NODE_STYLE :
+      send ? { color: COLORS.DEPRECATED } :
       constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
       view ? { color: COLORS.VIEW } :
       pure ? { color: COLORS.PURE } :
-      transfer ? { color: COLORS.TRANSFER } :
+      transfer ? { color: COLORS.DEPRECATED } :
       payable ? { color: COLORS.PAYABLE } :
       {}
     )
@@ -132,7 +132,10 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
 
   // add send node
   if(analyzedNodes.some(prop('send'))) {
-    digraph.setNode(SEND_NODE_NAME, SEND_NODE_STYLE)
+    digraph.setNode(DEPRECATED_NODE_NAMES['send'], DEPRECATED_NODE_STYLE)
+  }
+  if(analyzedNodes.some(prop('transfer'))) {
+    digraph.setNode(DEPRECATED_NODE_NAMES['transfer'], DEPRECATED_NODE_STYLE)
   }
 
   return dot.write(digraph)

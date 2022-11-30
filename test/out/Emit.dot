@@ -1,5 +1,5 @@
 strict digraph {
-  Deposit [shape=polygon]
+  Deposit [shape=hexagon]
   deposit [color=brown]
   deposit -> Deposit
 }
