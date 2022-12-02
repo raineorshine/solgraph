@@ -44,15 +44,13 @@ const callees = node => {
 }
 
 /** Determines the name of the graph node to render from the AST node. */
-const graphNodeName = node => {
-  if (isDeprecated(node.name)) return deprecatedNodeName(node.name) 
-
-  return node.name || (
-    node.isConstructor ? 'constructor' :
-    node.isFallback    ? 'fallback'    :
-    node.isReceiveEther ? 'receive'    : 
-    'UNKNOWN')
-  }
+const graphNodeName = node =>
+    node.name || (
+      node.isConstructor ? 'constructor' :
+      node.isFallback    ? 'fallback'    :
+      node.isReceiveEther ? 'receive'    : 
+      'UNKNOWN')
+  
 
 
 export default source => {
