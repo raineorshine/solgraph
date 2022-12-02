@@ -44,7 +44,6 @@
     "commander": "*",
     "get-stdin-promise": "*",
     "graphlib": "^2.1.5",
-    "graphlib-dot": "^0.6.2",
-    "solidity-parser-sc": "^0.4.10"
+    "graphlib-dot": "^0.6.2"
   }
 }

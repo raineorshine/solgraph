@@ -4,10 +4,8 @@ import * as dot from  'graphlib-dot'
 
 const DEPRECATED = ['send', 'transfer']
 
-const DEPRECATED_NODE_NAMES = {
-  send: 'DEPRECATED(send)',
-  transfer: 'DEPRECATED(transfer)',
-}
+const deprecatedNodeName = name => `DEPRECATED(${name})`
+
 const DEPRECATED_NODE_STYLE = { shape: 'rectangle' }
 const EVENT_NODE_STYLE = { shape: 'hexagon' }
 
@@ -21,6 +19,7 @@ const COLORS = {
   DEPRECATED: 'red'
 }
 
+const isDeprecated = name => DEPRECATED.includes(name)
 const prop = name => object => object[name]
 const propEquals = (name, values) => object => Array.isArray(values) ?
     values.includes(object[name]) :
@@ -45,16 +44,16 @@ const callees = node => {
 }
 
 /** Determines the name of the graph node to render from the AST node. */
-const graphNodeName = name => {
-  return DEPRECATED.includes(name) ? DEPRECATED_NODE_NAMES[name] : name
-}
-const handleSpecials = node => {
-  if (node.isConstructor) {
-    node.name = 'constructor'
-  } else if( node.isFallback) {
-    node.name = 'fallback'
+const graphNodeName = node => {
+  if (isDeprecated(node.name)) return deprecatedNodeName(node.name) 
+
+  return node.name || (
+    node.isConstructor ? 'constructor' :
+    node.isFallback    ? 'fallback'    :
+    node.isReceiveEther ? 'receive'    : 
+    'UNKNOWN')
   }
-}
+
 
 export default source => {
 
@@ -69,7 +68,7 @@ export default source => {
   }
 
   // get a list of all function nodes
-  const contracts = ast.children.filter(child => child.type === 'ContractDefinition')
+const contracts = ast.children.filter(child => child.type === 'ContractDefinition')
 const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
     .filter(propEquals('type', ['FunctionDefinition', 'EventDefinition']))
 
@@ -82,19 +81,17 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
             return statement.eventCall.expression.name  
           case "ExpressionStatement": 
             const expression = statement.expression.expression
-            if (expression.name) return statement.expression.expression.name
+            if (expression.name) return expression.name
             if (expression.type === 'MemberAccess') 
-              return expression.memberName
+return expression.memberName
+          default:
+            const msg = `Unexpected statement type (${statement.type}) in analyzed nodes.`
+            throw new Error(msg)
         }
       })
 
-    //CONSTRUCTOR
-    if (!node.name) {
-      handleSpecials(node)
-    }
-
     return {
-      name: graphNodeName(node.name),
+      name: graphNodeName(node),
       callees:functionCallees,
       send: functionCallees.includes('send'),
       transfer: functionCallees.includes('transfer'),
@@ -109,10 +106,12 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
 
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable, event }) => {
+  analyzedNodes.forEach(({ 
+    name, callees, send, constant, internal, view, pure, transfer, payable, event 
+  }) => {
 
     // node
-    digraph.setNode(graphNodeName(name),
+    digraph.setNode(name,
       event ? EVENT_NODE_STYLE :
       send ? { color: COLORS.DEPRECATED } :
       constant ? { color: COLORS.CONSTANT } :
@@ -126,17 +125,17 @@ const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
 
     // edge
     callees.forEach(callee => {
-      digraph.setEdge(name, graphNodeName(callee))
+      const calleeNodeName = isDeprecated(callee) ? deprecatedNodeName(callee) : callee
+      digraph.setEdge(name, calleeNodeName)
     })
   })
 
-  // add send node
-  if(analyzedNodes.some(prop('send'))) {
-    digraph.setNode(DEPRECATED_NODE_NAMES['send'], DEPRECATED_NODE_STYLE)
-  }
-  if(analyzedNodes.some(prop('transfer'))) {
-    digraph.setNode(DEPRECATED_NODE_NAMES['transfer'], DEPRECATED_NODE_STYLE)
-  }
+  // add deprecated native calls
+  DEPRECATED.forEach(name => {
+    if(analyzedNodes.some(prop(name))) {
+      digraph.setNode(deprecatedNodeName(name), DEPRECATED_NODE_STYLE)
+    }
+  })
 
   return dot.write(digraph)
 }
