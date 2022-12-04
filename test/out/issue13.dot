@@ -1,9 +1,9 @@
 strict digraph {
   functionOne [color=green]
   functionTwo [color=brown]
-  functionThree [color=purple]
-  transfer
-  anEvent
-  functionThree -> transfer
+  anEvent [shape=hexagon]
+  functionThree [color=red]
+  "DEPRECATED(transfer)" [shape=rectangle]
+  functionThree -> "DEPRECATED(transfer)"
   functionThree -> anEvent
 }

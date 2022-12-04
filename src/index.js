@@ -1,23 +1,29 @@
-import * as solparser from 'solidity-parser-sc'
+const solparser = require('@solidity-parser/parser');
 import { Graph } from  'graphlib'
 import * as dot from  'graphlib-dot'
 
-const SEND_NODE_NAME = 'UNTRUSTED'
-const SEND_NODE_STYLE = { shape: 'rectangle' }
+const DEPRECATED = ['send', 'transfer']
+
+const deprecatedNodeName = name => `DEPRECATED(${name})`
+
+const DEPRECATED_NODE_STYLE = { shape: 'rectangle' }
+const EVENT_NODE_STYLE = { shape: 'hexagon' }
 
 const COLORS = {
-  SEND: 'red',
   CONSTANT: 'blue',
   CALL: 'orange',
   INTERNAL: 'gray',
   VIEW: 'yellow',
   PURE: 'green',
-  TRANSFER: 'purple',
-  PAYABLE: 'brown'
+  PAYABLE: 'brown',
+  DEPRECATED: 'red'
 }
 
+const isDeprecated = name => DEPRECATED.includes(name)
 const prop = name => object => object[name]
-const propEquals = (name, value) => object => object[name] === value
+const propEquals = (name, values) => object => Array.isArray(values) ?
+    values.includes(object[name]) :
+    object[name] === values 
 const wrap = val => Array.isArray(val) ? val : [val]
 
 /** Converts an AST to array. */
@@ -27,18 +33,25 @@ const flatten = ast => {
 }
 
 /** Finds all call expression nodes in an AST. */
-const callees = ast => {
-  return flatten(ast).filter(node => {
-    return node.type === 'CallExpression' &&
-      node.callee.name !== 'require' &&
-      node.callee.name !== 'assert'
-  })
+const callees = node => {
+  if (!(node.body && node.body.statements)) return []
+  const {statements} = node.body
+  return statements.filter(statement => 
+      statement.type === 'EmitStatement' ||
+      (statement.type === 'ExpressionStatement' && statement.expression.type === 'FunctionCall') &&
+      !['require', 'assert'].includes(statement.expression.expression.name) 
+  )
 }
 
 /** Determines the name of the graph node to render from the AST node. */
-const graphNodeName = name => {
-  return name === 'send' ? SEND_NODE_NAME : name
-}
+const graphNodeName = node =>
+    node.name || (
+      node.isConstructor ? 'constructor' :
+      node.isFallback    ? 'fallback'    :
+      node.isReceiveEther ? 'receive'    : 
+      'UNKNOWN')
+  
+
 
 export default source => {
 
@@ -53,58 +66,74 @@ export default source => {
   }
 
   // get a list of all function nodes
-  const functionNodes = flatten(ast).filter(propEquals('type', 'FunctionDeclaration'))
+const contracts = ast.children.filter(child => child.type === 'ContractDefinition')
+const functionAndEventNodes = contracts.map(contract=>contract.subNodes).flat()
+    .filter(propEquals('type', ['FunctionDefinition', 'EventDefinition']))
 
   // analyze the security of the functions
-  const analyzedNodes = functionNodes.map(node => {
-    const functionCallees = callees(node).map(node => node.callee)
+  const analyzedNodes = functionAndEventNodes.map(node => {
+    const functionCallees = callees(node)
+      .map(statement => {
+        switch(statement.type ) {
+          case "EmitStatement": 
+            return statement.eventCall.expression.name  
+          case "ExpressionStatement": 
+            const expression = statement.expression.expression
+            if (expression.name) return expression.name
+            if (expression.type === 'MemberAccess') 
+return expression.memberName
+          default:
+            const msg = `Unexpected statement type (${statement.type}) in analyzed nodes.`
+            throw new Error(msg)
+        }
+      })
+
     return {
-      name: graphNodeName(node.name),
+      name: graphNodeName(node),
       callees:functionCallees,
-      send: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'send'
-      }),
-      transfer: functionCallees.some(callee => {
-        return (callee.name || callee.property && callee.property.name) === 'transfer'
-      }),
-      constant: node.modifiers && node.modifiers.some(propEquals('name', 'constant')),
-      internal: node.modifiers && node.modifiers.some(propEquals('name', 'internal')),
-      view: node.modifiers && node.modifiers.some(propEquals('name', 'view')),
-      pure: node.modifiers && node.modifiers.some(propEquals('name', 'pure')),
-      payable: node.modifiers && node.modifiers.some(propEquals('name', 'payable'))
+      send: functionCallees.includes('send'),
+      transfer: functionCallees.includes('transfer'),
+      constant: node.stateMutability && node.stateMutability === 'constant',
+      internal: node.visibility && node.visibility === 'internal',
+      view: node.stateMutability && node.stateMutability === 'view',
+      pure: node.stateMutability && node.stateMutability === 'pure',
+      payable: node.stateMutability && node.stateMutability === 'payable',
+      event: node.type && node.type === 'EventDefinition'
     }
   })
 
-  // console.log(JSON.stringify(ast, null, 2))
-  // console.log(JSON.stringify(analyzedNodes, null, 2))
-
   // generate a graph
   var digraph = new Graph()
-  analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable }) => {
+  analyzedNodes.forEach(({ 
+    name, callees, send, constant, internal, view, pure, transfer, payable, event 
+  }) => {
 
     // node
-    digraph.setNode(graphNodeName(name),
-      send ? { color: COLORS.SEND } :
+    digraph.setNode(name,
+      event ? EVENT_NODE_STYLE :
+      send ? { color: COLORS.DEPRECATED } :
       constant ? { color: COLORS.CONSTANT } :
       internal ? { color: COLORS.INTERNAL } :
       view ? { color: COLORS.VIEW } :
       pure ? { color: COLORS.PURE } :
-      transfer ? { color: COLORS.TRANSFER } :
+      transfer ? { color: COLORS.DEPRECATED } :
       payable ? { color: COLORS.PAYABLE } :
       {}
     )
 
     // edge
     callees.forEach(callee => {
-      const calleeName = callee.property && callee.property.name || callee.name
-      digraph.setEdge(name, graphNodeName(calleeName))
+      const calleeNodeName = isDeprecated(callee) ? deprecatedNodeName(callee) : callee
+      digraph.setEdge(name, calleeNodeName)
     })
   })
 
-  // add send node
-  if(analyzedNodes.some(prop('send'))) {
-    digraph.setNode(SEND_NODE_NAME, SEND_NODE_STYLE)
-  }
+  // add deprecated native calls
+  DEPRECATED.forEach(name => {
+    if(analyzedNodes.some(prop(name))) {
+      digraph.setNode(deprecatedNodeName(name), DEPRECATED_NODE_STYLE)
+    }
+  })
 
   return dot.write(digraph)
 }

@@ -1,5 +1,5 @@
 strict digraph {
   Foo [color=red]
-  UNTRUSTED [shape=rectangle]
-  Foo -> UNTRUSTED
+  "DEPRECATED(send)" [shape=rectangle]
+  Foo -> "DEPRECATED(send)"
 }
