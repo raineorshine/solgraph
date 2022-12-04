@@ -31,9 +31,11 @@
     "security"
   ],
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "chai": "*",
     "mocha": "^10.1.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.0"
   },
   "dependencies": {
     "@babel/cli": "^7.19.3",

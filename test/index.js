@@ -1,11 +1,11 @@
 import * as chai from 'chai'
+import { readFileSync, readdirSync } from 'fs'
 import solgraph from '../src/index.js'
-import { readdirSync, readFileSync } from 'fs'
+
 const should = chai.should()
 
 /** Load a text file from the current directory */
-const load = filename => readFileSync(__dirname + '/' + filename, 'utf-8')
-  .replace(/\r/g, '') // strip carriage returns for Windows support
+const load = filename => readFileSync(__dirname + '/' + filename, 'utf-8').replace(/\r/g, '') // strip carriage returns for Windows support
 
 /** Test that the processed input .sol file matches the output .dot file. */
 const testInOut = file => {
@@ -15,7 +15,6 @@ const testInOut = file => {
 }
 
 describe('solgraph', () => {
-
   // test each .sol file in the ./test/in directory
   // against the corresponding .dot file in the ./test/out directory
   const files = readdirSync(__dirname + '/in')

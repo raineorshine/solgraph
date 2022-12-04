@@ -1,12 +1,14 @@
 # solgraph
+
 [![npm version](https://img.shields.io/npm/v/solgraph.svg)](https://npmjs.org/package/solgraph)
 [![Build Status](https://travis-ci.org/raineorshine/solgraph.svg?branch=master)](https://travis-ci.org/raineorshine/solgraph)
 
-Generates a [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) graph that visualizes function control flow of a Solidity contract and highlights potential security vulnerabilities.
+Generates a [DOT](<https://en.wikipedia.org/wiki/DOT_(graph_description_language)>) graph that visualizes function control flow of a Solidity contract and highlights potential security vulnerabilities.
 
 ![Screenshot](https://raw.githubusercontent.com/raineorshine/solgraph/master/example.png)
 
 **Legend:**
+
 - Red: Send to external address
 - Blue: Constant function
 - Yellow: View
@@ -66,7 +68,7 @@ strict digraph {
 }
 ```
 
-You have to have [graphviz](https://graphviz.gitlab.io/download/) installed (`brew install graphviz`) to render the [DOT](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) file as an image:
+You have to have [graphviz](https://graphviz.gitlab.io/download/) installed (`brew install graphviz`) to render the [DOT](<https://en.wikipedia.org/wiki/DOT_(graph_description_language)>) file as an image:
 
 ```sh
 dot -Tpng MyContract.dot -o MyContract.png
