@@ -14,6 +14,7 @@
   },
   "scripts": {
     "build": "babel -d dist src",
+    "lint": "eslint --cache --ignore-path .gitignore .",
     "test": "mocha --require @babel/register",
     "postinstall": "npm run build",
     "watch": "nodemon -w src -w test -x \"npm run build && npm test\""
@@ -33,6 +34,15 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "chai": "*",
+    "eslint": "^8.29.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-raine": "^0.3.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-fp": "^2.3.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsdoc": "^39.6.4",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.1.0",
     "nodemon": "^2.0.20",
     "prettier": "^2.8.0"

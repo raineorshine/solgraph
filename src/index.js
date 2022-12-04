@@ -5,8 +5,6 @@ const solparser = require('@solidity-parser/parser')
 
 const DEPRECATED = ['send', 'transfer']
 
-const deprecatedNodeName = name => `DEPRECATED(${name})`
-
 const DEPRECATED_NODE_STYLE = { shape: 'rectangle' }
 const EVENT_NODE_STYLE = { shape: 'hexagon' }
 
@@ -20,17 +18,12 @@ const COLORS = {
   DEPRECATED: 'red',
 }
 
-const isDeprecated = name => DEPRECATED.includes(name)
+/** Returns the value of a given property name. */
 const prop = name => object => object[name]
+
+/** Returns true if an object contains a given property value. If an array of values are passed, returns true if any of them are in the property value. */
 const propEquals = (name, values) => object =>
   Array.isArray(values) ? values.includes(object[name]) : object[name] === values
-const wrap = val => (Array.isArray(val) ? val : [val])
-
-/** Converts an AST to array. */
-const flatten = ast => {
-  const children = wrap(ast.body || ast.expression || ast.left || ast.right || ast.literal || [])
-  return [ast].concat(...children.map(flatten))
-}
 
 /** Finds all call expression nodes in an AST. */
 const callees = node => {
@@ -50,7 +43,8 @@ const graphNodeName = node =>
   node.name ||
   (node.isConstructor ? 'constructor' : node.isFallback ? 'fallback' : node.isReceiveEther ? 'receive' : 'UNKNOWN')
 
-export default source => {
+/** Main entry point to generate a DOT graph from solidity code. */
+const solgraph = source => {
   // parse the Solidity source
   let ast
   try {
@@ -72,15 +66,16 @@ export default source => {
   const analyzedNodes = functionAndEventNodes.map(node => {
     const functionCallees = callees(node).map(statement => {
       switch (statement.type) {
-        case 'EmitStatement':
+        case 'EmitStatement': {
           return statement.eventCall.expression.name
-        case 'ExpressionStatement':
+        }
+        case 'ExpressionStatement': {
           const expression = statement.expression.expression
-          if (expression.name) return expression.name
-          if (expression.type === 'MemberAccess') return expression.memberName
-        default:
-          const msg = `Unexpected statement type (${statement.type}) in analyzed nodes.`
-          throw new Error(msg)
+          return expression.name || (expression.type === 'MemberAccess' ? expression.memberName : null)
+        }
+        default: {
+          throw new Error(`Unexpected statement type (${statement.type}) in analyzed nodes.`)
+        }
       }
     })
 
@@ -99,7 +94,7 @@ export default source => {
   })
 
   // generate a graph
-  var digraph = new Graph()
+  const digraph = new Graph()
   analyzedNodes.forEach(({ name, callees, send, constant, internal, view, pure, transfer, payable, event }) => {
     // node
     digraph.setNode(
@@ -125,7 +120,7 @@ export default source => {
 
     // edge
     callees.forEach(callee => {
-      const calleeNodeName = isDeprecated(callee) ? deprecatedNodeName(callee) : callee
+      const calleeNodeName = DEPRECATED.includes(callee) ? `DEPRECATED(${callee})` : callee
       digraph.setEdge(name, calleeNodeName)
     })
   })
@@ -133,9 +128,11 @@ export default source => {
   // add deprecated native calls
   DEPRECATED.forEach(name => {
     if (analyzedNodes.some(prop(name))) {
-      digraph.setNode(deprecatedNodeName(name), DEPRECATED_NODE_STYLE)
+      digraph.setNode(`DEPRECATED(${name})`, DEPRECATED_NODE_STYLE)
     }
   })
 
   return dot.write(digraph)
 }
+
+export default solgraph
